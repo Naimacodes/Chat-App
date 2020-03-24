@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const socketio = require('socket.io');
 const formatMessage = require('./utils/messages');
+const {userJoin, getCurrentUser} = require('./utils/users');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
@@ -17,6 +18,10 @@ const botName = 'Admin';
 
 io.on('connection', socket => {
   socket.on('joinRoom', ({ username, room }) => {
+
+    const user = userJoin(socket.id, username, room)
+
+    socket.join(user.room);
     //welcomes current user
     socket.emit('message', formatMessage(botName, 'Welcome to the chat'));
 
