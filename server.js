@@ -1,23 +1,32 @@
-const path = require('path')
-const express = require('express')
-const socketio = require('socket.io')
-const http = require('http')
+const path = require('path');
+const express = require('express');
+const socketio = require('socket.io');
+const http = require('http');
 const app = express();
-const server = http.createServer(app)
-const io = socketio(server)
+const server = http.createServer(app);
+const io = socketio(server);
 
-//set static folder for our front end
+//sets static folder for our front end
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
 
+// runs when client connects, listens to an event
 
-// run when a client connects, listens to an event
+io.on('connection', socket => {
 
-io.on('connection', socket=> {
-  console.log('new web socket ');
-})
+  //welcomes current user
+  socket.emit('message', 'Welcome to the chat');
 
+  //broadcasts to everybody when a certain user connects except the user in question
+  socket.broadcast.emit('message', 'a user has joined the chat')
+
+  // runs when client disconnects
+  socket.on('disconnect', () => {
+    //emits to everyone
+    io.emit('message', 'a user has left the chat')
+  })
+});
 
 const PORT = 3000 || process.env.PORT;
 
-server.listen(PORT, () => console.log(`server running on port ${PORT} `))
+server.listen(PORT, () => console.log(`server running on port ${PORT} `));
