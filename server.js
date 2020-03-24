@@ -13,18 +13,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 // runs when client connects, listens to an event
 
 io.on('connection', socket => {
-
   //welcomes current user
   socket.emit('message', 'Welcome to the chat');
 
   //broadcasts to everybody when a certain user connects except the user in question
-  socket.broadcast.emit('message', 'a user has joined the chat')
+  socket.broadcast.emit('message', 'a user has joined the chat');
 
   // runs when client disconnects
   socket.on('disconnect', () => {
     //emits to everyone
-    io.emit('message', 'a user has left the chat')
-  })
+    io.emit('message', 'a user has left the chat');
+  });
+
+  //listens for chatMessage
+  socket.on('chatMessage', msg => {
+    //emits the message back to the client for everyone to see
+
+    io.emit('message', msg)
+  });
 });
 
 const PORT = 3000 || process.env.PORT;
